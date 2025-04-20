@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Garfor Wetter Bitburg & Neumagen-Dhron</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ffffff;
+            color: #333333;
+        }
+        h1, h2 {
+            color: #003366;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .timestamp {
+            font-size: 0.9em;
+            color: #666666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Garfor Wetter</h1>
+    <div class="timestamp" id="timestamp">Letzte Aktualisierung: Wird geladen...</div>
+
+    <div class="section">
+        <h2>Wetter Bitburg (Region West)</h2>
+        <pre id="west">Lade Wetterdaten...</pre>
+    </div>
+
+    <div class="section">
+        <h2>Wetter Neumagen-Dhron (Region Mitte)</h2>
+        <pre id="mitte">Lade Wetterdaten...</pre>
+    </div>
+
+    <script>
+        async function ladeGarfor() {
+            const timestamp = new Date().toLocaleString('de-DE');
+            document.getElementById('timestamp').innerText = 'Letzte Aktualisierung: ' + timestamp;
+
+            const urls = {
+                west: 'https://www.dwd.de/DE/fachnutzer/luftfahrt/teaser/luftsportberichte/fbeu40_edze_node.html',
+                mitte: 'https://www.dwd.de/DE/fachnutzer/luftfahrt/teaser/luftsportberichte/fbeu40_edzf_node.html'
+            };
+
+            const fetchData = async (url) => {
+                const response = await fetch(url);
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const pre = doc.querySelector('pre');
+                return pre ? pre.textContent : 'Keine Wetterdaten gefunden.';
+            };
+
+            try {
+                const westData = await fetchData(urls.west);
+                const mitteData = await fetchData(urls.mitte);
+
+                document.getElementById('west').textContent = westData;
+                document.getElementById('mitte').textContent = mitteData;
+            } catch (error) {
+                document.getElementById('west').textContent = 'Fehler beim Laden der Wetterdaten.';
+                document.getElementById('mitte').textContent = 'Fehler beim Laden der Wetterdaten.';
+                console.error(error);
+            }
+        }
+
+        ladeGarfor();
+    </script>
+</body>
+</html>
